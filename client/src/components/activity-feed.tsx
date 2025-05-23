@@ -102,17 +102,17 @@ export default function ActivityFeed() {
   };
 
   return (
-    <div className="mt-6">
-      <Card className="bg-chat-surface border-gray-700 overflow-hidden">
-        <CardHeader className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-          <h3 className="text-lg font-semibold flex items-center text-white">
-            <TrendingUp className="text-tiktok-cyan mr-2" />
+    <div className="mt-8">
+      <Card className="bg-glass border-gray-600/30 overflow-hidden shadow-professional">
+        <CardHeader className="px-6 py-5 border-b border-gray-600/30 bg-surface-elevated/30">
+          <h3 className="text-xl font-bold flex items-center text-white">
+            <TrendingUp className="text-tiktok-cyan mr-3 w-6 h-6" />
             Recent Activity
           </h3>
         </CardHeader>
         
-        <CardContent className="p-4">
-          <div className="space-y-3 max-h-32 overflow-y-auto custom-scrollbar">
+        <CardContent className="p-6">
+          <div className="space-y-4 max-h-40 overflow-y-auto custom-scrollbar">
             {activities.length === 0 ? (
               <div className="text-center text-gray-400 py-4">
                 <p className="text-sm">No recent activity</p>
@@ -120,12 +120,12 @@ export default function ActivityFeed() {
               </div>
             ) : (
               activities.slice().reverse().map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-3 text-sm">
-                  <div className={`w-2 h-2 ${getActivityColor(activity.type)} rounded-full flex-shrink-0`}></div>
+                <div key={activity.id} className="flex items-center space-x-4 text-sm p-3 hover:bg-surface-elevated/20 rounded-lg transition-colors duration-200">
+                  <div className={`w-3 h-3 ${getActivityColor(activity.type)} rounded-full flex-shrink-0 shadow-sm`}></div>
                   <div className="flex-1 min-w-0">
                     {renderActivityContent(activity)}
                   </div>
-                  <span className="text-xs text-gray-500 flex-shrink-0">
+                  <span className="text-xs text-slate-400 flex-shrink-0 font-medium">
                     {formatTime(activity.timestamp)}
                   </span>
                 </div>

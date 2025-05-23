@@ -36,51 +36,53 @@ export default function Home() {
     switch (connectionStatus) {
       case 'connected':
         return (
-          <Badge className="bg-green-900/50 border-green-700 text-green-300">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse-slow mr-2"></div>
-            Connected
+          <Badge className="bg-emerald-500/20 border-emerald-400/30 text-emerald-300 font-medium px-3 py-1.5">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse-slow mr-2"></div>
+            Live Connected
           </Badge>
         );
       case 'connecting':
         return (
-          <Badge className="bg-yellow-900/50 border-yellow-700 text-yellow-300">
-            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse-slow mr-2"></div>
-            Connecting
+          <Badge className="bg-amber-500/20 border-amber-400/30 text-amber-300 font-medium px-3 py-1.5">
+            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse-slow mr-2"></div>
+            Connecting...
           </Badge>
         );
       default:
         return (
-          <Badge variant="secondary" className="bg-gray-700 text-gray-300">
-            <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-            Disconnected
+          <Badge className="bg-slate-600/20 border-slate-500/30 text-slate-300 font-medium px-3 py-1.5">
+            <div className="w-2 h-2 bg-slate-400 rounded-full mr-2"></div>
+            Standby
           </Badge>
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tiktok-dark via-gray-900 to-black">
+    <div className="min-h-screen bg-gradient-dark">
       {/* Header */}
-      <header className="bg-black/50 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-glass border-b border-gray-700/30 sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-tiktok-red to-tiktok-cyan rounded-lg flex items-center justify-center">
-                <Video className="text-white text-lg w-5 h-5" />
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-tiktok-red to-tiktok-cyan rounded-xl flex items-center justify-center shadow-glow-cyan">
+                <Video className="text-white w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">TikTok Live Monitor</h1>
-                <p className="text-sm text-gray-400">Real-time chat & gifts tracker</p>
+                <h1 className="text-2xl font-bold text-white tracking-tight">TikTok Live Monitor</h1>
+                <p className="text-sm text-slate-400 font-medium">Professional real-time analytics dashboard</p>
               </div>
             </div>
             
             {/* Connection Status */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {getConnectionStatusBadge()}
               {connectedUsername && connectionStatus === 'connected' && (
-                <span className="text-sm text-gray-300">
-                  @{connectedUsername}
-                </span>
+                <div className="bg-surface-elevated px-3 py-1.5 rounded-lg border border-gray-600/30">
+                  <span className="text-sm text-white font-medium">
+                    @{connectedUsername}
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -88,7 +90,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-6 py-8">
         {/* Connection Form */}
         <ConnectionForm onConnectionChange={handleConnectionChange} />
 
@@ -96,7 +98,7 @@ export default function Home() {
         <LiveStats stats={stats} />
 
         {/* Chat and Gifts Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <LiveChat />
           <LiveGifts />
         </div>
@@ -106,13 +108,13 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 py-6 border-t border-gray-800 bg-black/30">
-        <div className="container mx-auto px-4 text-center text-gray-400">
-          <p className="text-sm">
-            Built with Node.js, React, Socket.IO & TikTok Live Connector
+      <footer className="mt-16 py-8 border-t border-gray-700/30 bg-glass">
+        <div className="container mx-auto px-6 text-center text-slate-400">
+          <p className="text-sm font-medium">
+            Built with Node.js, React, WebSocket & TikTok Live Connector
           </p>
-          <p className="text-xs mt-1">
-            Real-time monitoring for TikTok Live streams
+          <p className="text-xs mt-2 opacity-80">
+            Professional real-time monitoring for TikTok Live streams
           </p>
         </div>
       </footer>

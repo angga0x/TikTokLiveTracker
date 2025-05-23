@@ -95,12 +95,12 @@ export default function LiveGifts() {
   };
 
   return (
-    <Card className="bg-chat-surface border-gray-700 overflow-hidden">
-      <CardHeader className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-        <h3 className="text-lg font-semibold flex items-center text-white">
-          <Gift className="text-yellow-400 mr-2" />
+    <Card className="bg-glass border-gray-600/30 overflow-hidden shadow-professional">
+      <CardHeader className="px-6 py-5 border-b border-gray-600/30 bg-surface-elevated/30">
+        <h3 className="text-xl font-bold flex items-center text-white">
+          <Gift className="text-yellow-400 mr-3 w-6 h-6" />
           Live Gifts
-          <Badge variant="secondary" className="ml-auto bg-gray-700 text-gray-300">
+          <Badge className="ml-auto bg-yellow-400/20 border-yellow-400/30 text-yellow-300 font-medium">
             Real-time
           </Badge>
         </h3>
@@ -109,7 +109,7 @@ export default function LiveGifts() {
       <CardContent className="p-0">
         <div 
           ref={scrollRef}
-          className="h-96 overflow-y-auto p-4 space-y-3 custom-scrollbar scroll-smooth"
+          className="h-96 overflow-y-auto p-6 space-y-4 custom-scrollbar scroll-smooth"
         >
           {gifts.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-400">
@@ -124,29 +124,29 @@ export default function LiveGifts() {
               const theme = getGiftTheme(gift.giftName);
               return (
                 <div key={gift.id} className="animate-gift-pop">
-                  <div className={`flex items-center space-x-3 p-4 bg-gradient-to-r ${theme.bg} border ${theme.border} rounded-lg`}>
-                    <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-xl">
+                  <div className={`flex items-center space-x-4 p-5 bg-gradient-to-r ${theme.bg} border ${theme.border} rounded-xl shadow-lg`}>
+                    <div className="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg">
                       {getGiftEmoji(gift.giftName)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-white truncate">
+                        <span className="font-semibold text-white truncate">
                           {gift.username}
                         </span>
-                        <span className="text-xs text-gray-400 flex-shrink-0">
+                        <span className="text-xs text-slate-400 flex-shrink-0 font-medium">
                           {formatTime(gift.timestamp)}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className={`font-semibold ${theme.text}`}>
+                      <div className="flex items-center space-x-3 mt-2">
+                        <span className={`font-bold ${theme.text}`}>
                           {gift.giftName}
                         </span>
-                        <span className="text-gray-300">×</span>
-                        <span className="text-white font-bold">
+                        <span className="text-slate-300 font-medium">×</span>
+                        <span className="text-white font-bold text-lg">
                           {gift.count}
                         </span>
                         {gift.coins > 0 && (
-                          <span className={`text-xs px-2 py-1 rounded-full ${theme.accent}`}>
+                          <span className={`text-xs px-3 py-1 rounded-full font-semibold ${theme.accent}`}>
                             {gift.coins} coins
                           </span>
                         )}

@@ -49,20 +49,22 @@ export default function LiveStats({ stats }: LiveStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
       {statItems.map((item) => {
         const IconComponent = item.icon;
         return (
-          <Card key={item.label} className="bg-chat-surface border-gray-700">
-            <CardContent className="p-4">
+          <Card key={item.label} className="bg-glass border-gray-600/30 shadow-professional hover:bg-surface-elevated/50 transition-all duration-300">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">{item.label}</p>
-                  <p className="text-xl font-bold text-white">
+                  <p className="text-sm text-slate-400 font-medium uppercase tracking-wide">{item.label}</p>
+                  <p className="text-2xl font-bold text-white mt-1">
                     {formatNumber(item.value)}
                   </p>
                 </div>
-                <IconComponent className={`${item.color} text-xl w-6 h-6`} />
+                <div className="p-3 bg-surface-elevated/50 rounded-xl">
+                  <IconComponent className={`${item.color} w-6 h-6`} />
+                </div>
               </div>
             </CardContent>
           </Card>

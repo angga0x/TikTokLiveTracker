@@ -22,36 +22,42 @@
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 60 9.1% 97.8%;
   --ring: 20 14.3% 4.1%;
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   
-  /* TikTok Brand Colors */
+  /* Modern Professional Colors */
   --tiktok-red: 339 100% 50%; /* #FF0050 */
   --tiktok-cyan: 174 91% 55%; /* #25F4EE */
   --tiktok-dark: 231 19% 13%; /* #161823 */
-  --chat-surface: 215 28% 17%; /* #1F2937 */
+  --chat-surface: 220 26% 14%; /* #1E293B */
+  --glass-bg: 220 26% 14% / 0.8; /* Glass morphism */
+  --glass-border: 220 26% 25% / 0.3;
+  --gradient-start: 225 29% 12%; /* #0F172A */
+  --gradient-end: 231 19% 13%; /* #161823 */
+  --surface-elevated: 220 26% 18%; /* #334155 */
+  --surface-hover: 220 26% 22%; /* #475569 */
 }
 
 .dark {
-  --background: 240 10% 3.9%;
+  --background: 225 29% 12%;
   --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
+  --muted: 220 26% 18%;
+  --muted-foreground: 220 13% 65%;
+  --popover: 220 26% 14%;
   --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  --card: 220 26% 14%;
   --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 207 90% 54%;
-  --primary-foreground: 211 100% 99%;
-  --secondary: 240 3.7% 15.9%;
+  --border: 220 26% 25%;
+  --input: 220 26% 18%;
+  --primary: 339 100% 50%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 220 26% 18%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
+  --accent: 174 91% 55%;
+  --accent-foreground: 225 29% 12%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 240 4.9% 83.9%;
-  --radius: 0.5rem;
+  --ring: 220 26% 25%;
+  --radius: 0.75rem;
 }
 
 @layer base {
@@ -64,7 +70,7 @@
   }
 }
 
-/* Custom TikTok theme utilities */
+/* Modern Professional Theme Utilities */
 .bg-tiktok-red {
   background-color: hsl(var(--tiktok-red));
 }
@@ -81,6 +87,20 @@
   background-color: hsl(var(--chat-surface));
 }
 
+.bg-glass {
+  background-color: hsla(var(--glass-bg));
+  backdrop-filter: blur(16px);
+  border: 1px solid hsla(var(--glass-border));
+}
+
+.bg-surface-elevated {
+  background-color: hsl(var(--surface-elevated));
+}
+
+.bg-gradient-dark {
+  background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)));
+}
+
 .text-tiktok-red {
   color: hsl(var(--tiktok-red));
 }
@@ -95,6 +115,18 @@
 
 .border-tiktok-cyan {
   border-color: hsl(var(--tiktok-cyan));
+}
+
+.shadow-glow-cyan {
+  box-shadow: 0 0 20px hsla(var(--tiktok-cyan) / 0.3);
+}
+
+.shadow-glow-red {
+  box-shadow: 0 0 20px hsla(var(--tiktok-red) / 0.3);
+}
+
+.shadow-professional {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Custom animations */

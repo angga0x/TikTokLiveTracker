@@ -75,14 +75,14 @@ export default function ConnectionForm({ onConnectionChange }: ConnectionFormPro
   };
 
   return (
-    <div className="mb-6">
-      <Card className="bg-chat-surface border-gray-700">
-        <CardContent className="p-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center text-white">
-            <Plug className="text-tiktok-cyan mr-2" />
-            Connect to TikTok Live
+    <div className="mb-8">
+      <Card className="bg-glass border-gray-600/30 shadow-professional">
+        <CardContent className="p-8">
+          <h2 className="text-xl font-bold mb-6 flex items-center text-white">
+            <Plug className="text-tiktok-cyan mr-3 w-6 h-6" />
+            Connect to TikTok Live Stream
           </h2>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <Input
                 type="text"
@@ -91,13 +91,13 @@ export default function ConnectionForm({ onConnectionChange }: ConnectionFormPro
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleConnect()}
                 disabled={isConnecting || connectionStatus === 'connected'}
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-tiktok-cyan focus:ring-tiktok-cyan"
+                className="h-12 bg-surface-elevated border-gray-600/30 text-white placeholder-slate-400 focus:border-tiktok-cyan focus:ring-tiktok-cyan/30 font-medium"
               />
             </div>
             <Button
               onClick={handleConnect}
               disabled={!username.trim() || isConnecting || connectionStatus === 'connected'}
-              className={`px-6 py-3 font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500/50 ${getButtonClass()}`}
+              className={`h-12 px-8 font-semibold text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-glow-red focus:outline-none focus:ring-2 focus:ring-pink-500/50 ${getButtonClass()}`}
             >
               {getButtonContent()}
             </Button>
