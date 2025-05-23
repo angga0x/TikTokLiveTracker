@@ -51,6 +51,8 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
   streamId: true,
   username: true,
   message: true,
+}).extend({
+  streamId: z.number().nullable().optional()
 });
 
 export const insertGiftSchema = createInsertSchema(gifts).pick({
@@ -60,6 +62,10 @@ export const insertGiftSchema = createInsertSchema(gifts).pick({
   giftId: true,
   count: true,
   coins: true,
+}).extend({
+  streamId: z.number().nullable().optional(),
+  count: z.number().optional(),
+  coins: z.number().optional()
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

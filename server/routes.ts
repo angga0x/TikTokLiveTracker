@@ -5,12 +5,7 @@ import { storage } from "./storage";
 import type { SocketEvents } from "@shared/schema";
 
 // TikTok Live Connector import
-let TikTokLiveConnector: any;
-try {
-  TikTokLiveConnector = require('tiktok-live-connector').WebcastPushConnection;
-} catch (error) {
-  console.warn('tiktok-live-connector not installed. Install with: npm install tiktok-live-connector');
-}
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
 
 interface ExtendedWebSocket extends WebSocket {
   id: string;
@@ -24,7 +19,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   const connections = new Map<string, ExtendedWebSocket>();
-  let currentConnection: any = null; // TikTok live connection
+  let currentConnection: TikTokLiveConnection | null = null; // TikTok live connection
   let currentStreamId: number | null = null;
 
   wss.on('connection', (ws: ExtendedWebSocket) => {
@@ -60,11 +55,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   async function handleTikTokConnect(username: string, ws: ExtendedWebSocket) {
-    if (!TikTokLiveConnector) {
-      sendToClient(ws, 'error', { message: 'TikTok Live Connector not available. Please install tiktok-live-connector package.' });
-      return;
-    }
-
     try {
       // Disconnect existing connection if any
       if (currentConnection) {
@@ -82,20 +72,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       currentStreamId = stream.id;
       ws.currentStream = stream.id;
 
-      // Create TikTok live connection
-      currentConnection = new TikTokLiveConnector(username, {
-        processInitialData: false,
-        enableExtendedGiftInfo: true,
-        requestPollingIntervalMs: 1000,
-        sessionId: undefined,
-        requestOptions: {
-          timeout: 10000,
-        },
-      });
+      // Create TikTok live connection using the correct API
+      currentConnection = new TikTokLiveConnection(username);
 
       // Event handlers
-      currentConnection.on('connected', async (state: any) => {
-        console.log(`Connected to TikTok Live: ${username}`);
+      currentConnection.connect().then(async (state: any) => {
+        console.log(`Connected to TikTok Live: ${username} - RoomId: ${state.roomId}`);
         
         // Update stream status
         await storage.updateLiveStream(stream!.id, { 
@@ -110,12 +92,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           giftCount: stream!.giftCount || 0,
           coinCount: stream!.coinCount || 0
         });
+      }).catch((err: any) => {
+        console.error('Failed to connect to TikTok Live:', err);
+        sendToClient(ws, 'error', { message: `Failed to connect: ${err.message}` });
+        sendToClient(ws, 'connection-status', { status: 'disconnected', error: err.message });
       });
 
-      currentConnection.on('chat', async (data: any) => {
+      // Listen for chat messages
+      currentConnection.on(WebcastEvent.CHAT, async (data: any) => {
         const message = await storage.createChatMessage({
           streamId: stream!.id,
-          username: data.uniqueId || data.nickname || 'Anonymous',
+          username: data.user?.uniqueId || data.user?.nickname || 'Anonymous',
           message: data.comment || ''
         });
 
@@ -136,11 +123,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      currentConnection.on('gift', async (data: any) => {
+      // Listen for gifts
+      currentConnection.on(WebcastEvent.GIFT, async (data: any) => {
         const gift = await storage.createGift({
           streamId: stream!.id,
-          username: data.uniqueId || data.nickname || 'Anonymous',
-          giftName: data.giftName || 'Unknown Gift',
+          username: data.user?.uniqueId || data.user?.nickname || 'Anonymous',
+          giftName: data.gift?.name || 'Unknown Gift',
           giftId: data.giftId || 0,
           count: data.repeatCount || 1,
           coins: (data.diamondCount || 0) * (data.repeatCount || 1)
@@ -164,7 +152,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      currentConnection.on('roomUser', async (data: any) => {
+      // Listen for room user updates (viewer count changes)
+      currentConnection.on(WebcastEvent.ROOM_USER, async (data: any) => {
         if (data.viewerCount !== undefined) {
           const updatedStream = await storage.updateLiveStream(stream!.id, {
             viewerCount: data.viewerCount
@@ -181,6 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
+      // Listen for disconnect
       currentConnection.on('disconnected', async () => {
         console.log(`Disconnected from TikTok Live: ${username}`);
         
@@ -189,14 +179,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         broadcast('connection-status', { status: 'disconnected' });
       });
-
-      currentConnection.on('error', (err: any) => {
-        console.error('TikTok Live connection error:', err);
-        sendToClient(ws, 'error', { message: `Connection error: ${err.message}` });
-      });
-
-      // Connect to TikTok Live
-      await currentConnection.connect();
 
     } catch (error: any) {
       console.error('TikTok connect error:', error);
