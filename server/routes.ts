@@ -1,0 +1,290 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
+import { storage } from "./storage";
+import type { SocketEvents } from "@shared/schema";
+
+// TikTok Live Connector import
+let TikTokLiveConnector: any;
+try {
+  TikTokLiveConnector = require('tiktok-live-connector').WebcastPushConnection;
+} catch (error) {
+  console.warn('tiktok-live-connector not installed. Install with: npm install tiktok-live-connector');
+}
+
+interface ExtendedWebSocket extends WebSocket {
+  id: string;
+  currentStream?: number;
+}
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  const httpServer = createServer(app);
+  
+  // WebSocket server for real-time communication
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  const connections = new Map<string, ExtendedWebSocket>();
+  let currentConnection: any = null; // TikTok live connection
+  let currentStreamId: number | null = null;
+
+  wss.on('connection', (ws: ExtendedWebSocket) => {
+    const id = Math.random().toString(36).substring(7);
+    ws.id = id;
+    connections.set(id, ws);
+    
+    console.log(`WebSocket client connected: ${id}`);
+
+    ws.on('message', async (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        
+        switch (message.type) {
+          case 'connect-tiktok':
+            await handleTikTokConnect(message.data.username, ws);
+            break;
+            
+          case 'disconnect-tiktok':
+            await handleTikTokDisconnect(ws);
+            break;
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+        sendToClient(ws, 'error', { message: 'Invalid message format' });
+      }
+    });
+
+    ws.on('close', () => {
+      connections.delete(id);
+      console.log(`WebSocket client disconnected: ${id}`);
+    });
+  });
+
+  async function handleTikTokConnect(username: string, ws: ExtendedWebSocket) {
+    if (!TikTokLiveConnector) {
+      sendToClient(ws, 'error', { message: 'TikTok Live Connector not available. Please install tiktok-live-connector package.' });
+      return;
+    }
+
+    try {
+      // Disconnect existing connection if any
+      if (currentConnection) {
+        currentConnection.disconnect();
+      }
+
+      sendToClient(ws, 'connection-status', { status: 'connecting', username });
+
+      // Create or get live stream record
+      let stream = await storage.getLiveStreamByUsername(username);
+      if (!stream) {
+        stream = await storage.createLiveStream({ tiktokUsername: username });
+      }
+      
+      currentStreamId = stream.id;
+      ws.currentStream = stream.id;
+
+      // Create TikTok live connection
+      currentConnection = new TikTokLiveConnector(username, {
+        processInitialData: false,
+        enableExtendedGiftInfo: true,
+        requestPollingIntervalMs: 1000,
+        sessionId: undefined,
+        requestOptions: {
+          timeout: 10000,
+        },
+      });
+
+      // Event handlers
+      currentConnection.on('connected', async (state: any) => {
+        console.log(`Connected to TikTok Live: ${username}`);
+        
+        // Update stream status
+        await storage.updateLiveStream(stream!.id, { 
+          isActive: true, 
+          viewerCount: state.viewerCount || 0 
+        });
+
+        sendToClient(ws, 'connection-status', { status: 'connected', username });
+        sendToClient(ws, 'stream-stats', {
+          viewerCount: state.viewerCount || 0,
+          messageCount: stream!.messageCount || 0,
+          giftCount: stream!.giftCount || 0,
+          coinCount: stream!.coinCount || 0
+        });
+      });
+
+      currentConnection.on('chat', async (data: any) => {
+        const message = await storage.createChatMessage({
+          streamId: stream!.id,
+          username: data.uniqueId || data.nickname || 'Anonymous',
+          message: data.comment || ''
+        });
+
+        // Update message count
+        const updatedStream = await storage.updateLiveStream(stream!.id, {
+          messageCount: (stream!.messageCount || 0) + 1
+        });
+
+        broadcast('new-chat', message);
+        
+        if (updatedStream) {
+          broadcast('stream-stats', {
+            viewerCount: updatedStream.viewerCount || 0,
+            messageCount: updatedStream.messageCount || 0,
+            giftCount: updatedStream.giftCount || 0,
+            coinCount: updatedStream.coinCount || 0
+          });
+        }
+      });
+
+      currentConnection.on('gift', async (data: any) => {
+        const gift = await storage.createGift({
+          streamId: stream!.id,
+          username: data.uniqueId || data.nickname || 'Anonymous',
+          giftName: data.giftName || 'Unknown Gift',
+          giftId: data.giftId || 0,
+          count: data.repeatCount || 1,
+          coins: (data.diamondCount || 0) * (data.repeatCount || 1)
+        });
+
+        // Update gift and coin counts
+        const updatedStream = await storage.updateLiveStream(stream!.id, {
+          giftCount: (stream!.giftCount || 0) + 1,
+          coinCount: (stream!.coinCount || 0) + gift.coins
+        });
+
+        broadcast('new-gift', gift);
+        
+        if (updatedStream) {
+          broadcast('stream-stats', {
+            viewerCount: updatedStream.viewerCount || 0,
+            messageCount: updatedStream.messageCount || 0,
+            giftCount: updatedStream.giftCount || 0,
+            coinCount: updatedStream.coinCount || 0
+          });
+        }
+      });
+
+      currentConnection.on('roomUser', async (data: any) => {
+        if (data.viewerCount !== undefined) {
+          const updatedStream = await storage.updateLiveStream(stream!.id, {
+            viewerCount: data.viewerCount
+          });
+
+          if (updatedStream) {
+            broadcast('stream-stats', {
+              viewerCount: updatedStream.viewerCount || 0,
+              messageCount: updatedStream.messageCount || 0,
+              giftCount: updatedStream.giftCount || 0,
+              coinCount: updatedStream.coinCount || 0
+            });
+          }
+        }
+      });
+
+      currentConnection.on('disconnected', async () => {
+        console.log(`Disconnected from TikTok Live: ${username}`);
+        
+        // Update stream status
+        await storage.updateLiveStream(stream!.id, { isActive: false });
+        
+        broadcast('connection-status', { status: 'disconnected' });
+      });
+
+      currentConnection.on('error', (err: any) => {
+        console.error('TikTok Live connection error:', err);
+        sendToClient(ws, 'error', { message: `Connection error: ${err.message}` });
+      });
+
+      // Connect to TikTok Live
+      await currentConnection.connect();
+
+    } catch (error: any) {
+      console.error('TikTok connect error:', error);
+      sendToClient(ws, 'error', { message: `Failed to connect: ${error.message}` });
+      sendToClient(ws, 'connection-status', { status: 'disconnected', error: error.message });
+    }
+  }
+
+  async function handleTikTokDisconnect(ws: ExtendedWebSocket) {
+    if (currentConnection) {
+      try {
+        currentConnection.disconnect();
+        currentConnection = null;
+        
+        if (currentStreamId) {
+          await storage.updateLiveStream(currentStreamId, { isActive: false });
+        }
+        
+        broadcast('connection-status', { status: 'disconnected' });
+      } catch (error: any) {
+        console.error('TikTok disconnect error:', error);
+        sendToClient(ws, 'error', { message: `Disconnect error: ${error.message}` });
+      }
+    }
+  }
+
+  function sendToClient<K extends keyof SocketEvents>(ws: ExtendedWebSocket, type: K, data: SocketEvents[K]) {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type, data }));
+    }
+  }
+
+  function broadcast<K extends keyof SocketEvents>(type: K, data: SocketEvents[K]) {
+    const message = JSON.stringify({ type, data });
+    connections.forEach((ws) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(message);
+      }
+    });
+  }
+
+  // REST API endpoints
+  app.get('/api/streams/:username/messages', async (req, res) => {
+    try {
+      const { username } = req.params;
+      const stream = await storage.getLiveStreamByUsername(username);
+      
+      if (!stream) {
+        return res.json([]);
+      }
+      
+      const messages = await storage.getChatMessages(stream.id);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+  });
+
+  app.get('/api/streams/:username/gifts', async (req, res) => {
+    try {
+      const { username } = req.params;
+      const stream = await storage.getLiveStreamByUsername(username);
+      
+      if (!stream) {
+        return res.json([]);
+      }
+      
+      const gifts = await storage.getGifts(stream.id);
+      res.json(gifts);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch gifts' });
+    }
+  });
+
+  app.get('/api/streams/:username', async (req, res) => {
+    try {
+      const { username } = req.params;
+      const stream = await storage.getLiveStreamByUsername(username);
+      
+      if (!stream) {
+        return res.status(404).json({ error: 'Stream not found' });
+      }
+      
+      res.json(stream);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch stream' });
+    }
+  });
+
+  return httpServer;
+}
