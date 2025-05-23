@@ -121,7 +121,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             viewerCount: updatedStream.viewerCount || 0,
             messageCount: updatedStream.messageCount || 0,
             giftCount: updatedStream.giftCount || 0,
-            coinCount: updatedStream.coinCount || 0
+            coinCount: updatedStream.coinCount || 0,
+            likeCount: updatedStream.likeCount || 0,
+            followCount: updatedStream.followCount || 0,
+            shareCount: updatedStream.shareCount || 0
           });
         }
       });
@@ -150,7 +153,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             viewerCount: updatedStream.viewerCount || 0,
             messageCount: updatedStream.messageCount || 0,
             giftCount: updatedStream.giftCount || 0,
-            coinCount: updatedStream.coinCount || 0
+            coinCount: updatedStream.coinCount || 0,
+            likeCount: updatedStream.likeCount || 0,
+            followCount: updatedStream.followCount || 0,
+            shareCount: updatedStream.shareCount || 0
           });
         }
       });
@@ -270,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Listen for disconnect
-      currentConnection.on('disconnected', async () => {
+      currentConnection.on('disconnect', async () => {
         console.log(`Disconnected from TikTok Live: ${username}`);
         
         // Update stream status

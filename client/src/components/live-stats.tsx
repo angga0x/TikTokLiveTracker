@@ -2,68 +2,69 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Eye, MessageCircle, Gift, Coins, Heart, UserPlus, Share2 } from 'lucide-react';
 
 interface LiveStatsProps {
-  stats: {
-    viewerCount: number;
-    messageCount: number;
-    giftCount: number;
-    coinCount: number;
-    likeCount: number;
-    followCount: number;
-    shareCount: number;
+  stats?: {
+    viewerCount?: number;
+    messageCount?: number;
+    giftCount?: number;
+    coinCount?: number;
+    likeCount?: number;
+    followCount?: number;
+    shareCount?: number;
   };
 }
 
 export default function LiveStats({ stats }: LiveStatsProps) {
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
+  const formatNumber = (num: number | undefined | null): string => {
+    const safeNum = num || 0;
+    if (safeNum >= 1000000) {
+      return (safeNum / 1000000).toFixed(1) + 'M';
     }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+    if (safeNum >= 1000) {
+      return (safeNum / 1000).toFixed(1) + 'K';
     }
-    return num.toString();
+    return safeNum.toString();
   };
 
   const statItems = [
     {
       label: 'Viewers',
-      value: stats.viewerCount,
+      value: stats?.viewerCount || 0,
       icon: Eye,
       color: 'text-tiktok-cyan'
     },
     {
       label: 'Messages',
-      value: stats.messageCount,
+      value: stats?.messageCount || 0,
       icon: MessageCircle,
       color: 'text-green-400'
     },
     {
       label: 'Gifts',
-      value: stats.giftCount,
+      value: stats?.giftCount || 0,
       icon: Gift,
       color: 'text-yellow-400'
     },
     {
       label: 'Coins',
-      value: stats.coinCount,
+      value: stats?.coinCount || 0,
       icon: Coins,
       color: 'text-yellow-500'
     },
     {
       label: 'Likes',
-      value: stats.likeCount,
+      value: stats?.likeCount || 0,
       icon: Heart,
       color: 'text-red-400'
     },
     {
       label: 'Follows',
-      value: stats.followCount,
+      value: stats?.followCount || 0,
       icon: UserPlus,
       color: 'text-purple-400'
     },
     {
       label: 'Shares',
-      value: stats.shareCount,
+      value: stats?.shareCount || 0,
       icon: Share2,
       color: 'text-blue-400'
     }

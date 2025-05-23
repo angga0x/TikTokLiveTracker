@@ -1,0 +1,27 @@
+[vite] connecting...
+DOMException {}
+stack: "SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=qw2-rOyP4lHt' is invalid.↵ at new t (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218737)↵ at setupWebSocket (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@vite/client:536:19)↵ at fallback (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@vite/client:509:16)↵ at WebSocket.<anonymous> (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@vite/client:555:7)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: DOMException
+
+WebSocket connected
+Cannot read properties of undefined (reading 'toString')
+Cannot read properties of undefined (reading 'toString')
+The above error occurred in the <LiveStats> component:
+
+    at LiveStats (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/src/components/live-stats.tsx:19:37)
+    at main
+    at div
+    at Home (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/src/pages/home.tsx:30:51)
+    at Route (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e7ab40d7:323:16)
+    at Switch (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e7ab40d7:379:17)
+    at Router
+    at Provider (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YNVQRCZ5.js?v=e7ab40d7:39:15)
+    at TooltipProvider (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e7ab40d7:2249:5)
+    at QueryClientProvider (https://961d5093-d9ac-4e3b-a066-0315d04642a0-00-3f3zcfveopxhw.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e7ab40d7:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Cannot read properties of undefined (reading 'toString')
