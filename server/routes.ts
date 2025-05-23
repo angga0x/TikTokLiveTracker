@@ -276,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Listen for disconnect
-      currentConnection.on('disconnect', async () => {
+      currentConnection.on(WebcastEvent.DISCONNECTED, async () => {
         console.log(`Disconnected from TikTok Live: ${username}`);
         
         // Update stream status
