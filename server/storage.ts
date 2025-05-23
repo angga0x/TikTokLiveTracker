@@ -1,29 +1,66 @@
-import { 
-  users, 
-  liveStreams,
-  chatMessages,
-  gifts,
-  likes,
-  follows,
-  shares,
-  members,
-  type User, 
-  type InsertUser,
-  type LiveStream,
-  type InsertLiveStream,
-  type ChatMessage,
-  type InsertChatMessage,
-  type Gift,
-  type InsertGift,
-  type Like,
-  type InsertLike,
-  type Follow,
-  type InsertFollow,
-  type Share,
-  type InsertShare,
-  type Member,
-  type InsertMember
-} from "@shared/schema";
+import type { 
+  LiveStream,
+  ChatMessage,
+  Gift,
+  Like,
+  Follow,
+  Share,
+  Member
+} from "../shared/schema";
+
+// Interface untuk data user karena sudah tidak ada di schema
+interface User {
+  id: number;
+  username: string;
+  password: string;
+}
+
+interface InsertUser {
+  username: string;
+  password: string;
+}
+
+// Interface untuk input data
+type InsertLiveStream = {
+  tiktokUsername: string;
+};
+
+type InsertChatMessage = {
+  streamId?: number | null;
+  username: string;
+  message: string;
+};
+
+type InsertGift = {
+  streamId?: number | null;
+  username: string;
+  giftName: string;
+  giftId: number;
+  count?: number;
+  coins?: number;
+};
+
+type InsertLike = {
+  streamId?: number | null;
+  username: string;
+  likeCount?: number;
+  totalLikeCount?: number;
+};
+
+type InsertFollow = {
+  streamId?: number | null;
+  username: string;
+};
+
+type InsertShare = {
+  streamId?: number | null;
+  username: string;
+};
+
+type InsertMember = {
+  streamId?: number | null;
+  username: string;
+};
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
