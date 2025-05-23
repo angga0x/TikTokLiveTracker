@@ -90,7 +90,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           viewerCount: state.viewerCount || 0,
           messageCount: stream!.messageCount || 0,
           giftCount: stream!.giftCount || 0,
-          coinCount: stream!.coinCount || 0
+          coinCount: stream!.coinCount || 0,
+          likeCount: stream!.likeCount || 0,
+          followCount: stream!.followCount || 0,
+          shareCount: stream!.shareCount || 0
         });
       }).catch((err: any) => {
         console.error('Failed to connect to TikTok Live:', err);
@@ -164,10 +167,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
               viewerCount: updatedStream.viewerCount || 0,
               messageCount: updatedStream.messageCount || 0,
               giftCount: updatedStream.giftCount || 0,
-              coinCount: updatedStream.coinCount || 0
+              coinCount: updatedStream.coinCount || 0,
+              likeCount: updatedStream.likeCount || 0,
+              followCount: updatedStream.followCount || 0,
+              shareCount: updatedStream.shareCount || 0
             });
           }
         }
+      });
+
+      // Listen for likes
+      currentConnection.on(WebcastEvent.LIKE, async (data: any) => {
+        const like = await storage.createLike({
+          streamId: stream!.id,
+          username: data.user?.uniqueId || data.user?.nickname || 'Anonymous',
+          likeCount: data.likeCount || 1,
+          totalLikeCount: data.totalLikeCount || 0
+        });
+
+        // Update like count
+        const updatedStream = await storage.updateLiveStream(stream!.id, {
+          likeCount: (stream!.likeCount || 0) + like.likeCount
+        });
+
+        broadcast('new-like', like);
+        
+        if (updatedStream) {
+          broadcast('stream-stats', {
+            viewerCount: updatedStream.viewerCount || 0,
+            messageCount: updatedStream.messageCount || 0,
+            giftCount: updatedStream.giftCount || 0,
+            coinCount: updatedStream.coinCount || 0,
+            likeCount: updatedStream.likeCount || 0,
+            followCount: updatedStream.followCount || 0,
+            shareCount: updatedStream.shareCount || 0
+          });
+        }
+      });
+
+      // Listen for follows
+      currentConnection.on(WebcastEvent.FOLLOW, async (data: any) => {
+        const follow = await storage.createFollow({
+          streamId: stream!.id,
+          username: data.user?.uniqueId || data.user?.nickname || 'Anonymous'
+        });
+
+        // Update follow count
+        const updatedStream = await storage.updateLiveStream(stream!.id, {
+          followCount: (stream!.followCount || 0) + 1
+        });
+
+        broadcast('new-follow', follow);
+        
+        if (updatedStream) {
+          broadcast('stream-stats', {
+            viewerCount: updatedStream.viewerCount || 0,
+            messageCount: updatedStream.messageCount || 0,
+            giftCount: updatedStream.giftCount || 0,
+            coinCount: updatedStream.coinCount || 0,
+            likeCount: updatedStream.likeCount || 0,
+            followCount: updatedStream.followCount || 0,
+            shareCount: updatedStream.shareCount || 0
+          });
+        }
+      });
+
+      // Listen for shares
+      currentConnection.on(WebcastEvent.SHARE, async (data: any) => {
+        const share = await storage.createShare({
+          streamId: stream!.id,
+          username: data.user?.uniqueId || data.user?.nickname || 'Anonymous'
+        });
+
+        // Update share count
+        const updatedStream = await storage.updateLiveStream(stream!.id, {
+          shareCount: (stream!.shareCount || 0) + 1
+        });
+
+        broadcast('new-share', share);
+        
+        if (updatedStream) {
+          broadcast('stream-stats', {
+            viewerCount: updatedStream.viewerCount || 0,
+            messageCount: updatedStream.messageCount || 0,
+            giftCount: updatedStream.giftCount || 0,
+            coinCount: updatedStream.coinCount || 0,
+            likeCount: updatedStream.likeCount || 0,
+            followCount: updatedStream.followCount || 0,
+            shareCount: updatedStream.shareCount || 0
+          });
+        }
+      });
+
+      // Listen for new members joining
+      currentConnection.on(WebcastEvent.MEMBER, async (data: any) => {
+        const member = await storage.createMember({
+          streamId: stream!.id,
+          username: data.user?.uniqueId || data.user?.nickname || 'Anonymous'
+        });
+
+        broadcast('new-member', member);
       });
 
       // Listen for disconnect

@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Eye, MessageCircle, Gift, Coins } from 'lucide-react';
+import { Eye, MessageCircle, Gift, Coins, Heart, UserPlus, Share2 } from 'lucide-react';
 
 interface LiveStatsProps {
   stats: {
@@ -7,6 +7,9 @@ interface LiveStatsProps {
     messageCount: number;
     giftCount: number;
     coinCount: number;
+    likeCount: number;
+    followCount: number;
+    shareCount: number;
   };
 }
 
@@ -45,11 +48,29 @@ export default function LiveStats({ stats }: LiveStatsProps) {
       value: stats.coinCount,
       icon: Coins,
       color: 'text-yellow-500'
+    },
+    {
+      label: 'Likes',
+      value: stats.likeCount,
+      icon: Heart,
+      color: 'text-red-400'
+    },
+    {
+      label: 'Follows',
+      value: stats.followCount,
+      icon: UserPlus,
+      color: 'text-purple-400'
+    },
+    {
+      label: 'Shares',
+      value: stats.shareCount,
+      icon: Share2,
+      color: 'text-blue-400'
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
       {statItems.map((item) => {
         const IconComponent = item.icon;
         return (

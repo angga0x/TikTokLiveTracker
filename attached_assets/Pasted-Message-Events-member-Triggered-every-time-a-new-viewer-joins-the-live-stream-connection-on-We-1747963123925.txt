@@ -1,0 +1,116 @@
+Message Events
+member
+Triggered every time a new viewer joins the live stream.
+
+connection.on(WebcastEvent.MEMBER, (data: WebcastMemberMessage) => {
+    console.log(`${data.uniqueId} joins the stream!`);
+});
+⚡ See Data Structure
+chat
+Triggered every time a new chat comment arrives.
+
+connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
+    console.log(`${data.uniqueId} -> ${data.comment}`);
+});
+⚡ See Data Structure
+gift
+Triggered every time a gift arrives. You will receive additional information via the extendedGiftInfo attribute when you enable the enableExtendedGiftInfo option.
+
+NOTE: Users have the capability to send gifts in a streak. This increases the repeatCount value until the user terminates the streak. During this time new gift events are triggered again and again with an increased repeatCount value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of the streak via repeatEnd:true. This applies only to gifts with giftType:1. This means that even if the user sends a giftType:1 gift only once, you will receive the event twice. Once with repeatEnd:false and once with repeatEnd:true. Therefore, the event should be handled as follows:
+
+connection.on(WebcastEvent.GIFT, (event: WebcastGiftMessage) => {
+    if (data.giftType === 1 && !data.repeatEnd) {
+        // Streak in progress => show only temporary
+        console.log(`${data.uniqueId} is sending gift ${data.giftName} x${data.repeatCount}`);
+    } else {
+        // Streak ended or non-streakable gift => process the gift with final repeat_count
+        console.log(`${data.uniqueId} has sent gift ${data.giftName} x${data.repeatCount}`);
+    }
+});
+⚡ See Data Structure
+roomUser
+Triggered every time a statistic message arrives. This message currently contains the viewer count and a top gifter list.
+
+connection.on(WebcastEvent.ROOM_USER, data => {
+    console.log(`Viewer Count: ${data.viewerCount}`);
+});
+⚡ See Data Structure
+like
+Triggered when a viewer sends likes to the streamer. For streams with many viewers, this event is not always triggered by TikTok.
+
+connection.on(WebcastEvent.LIKE, data => {
+    console.log(`${data.uniqueId} sent ${data.likeCount} likes, total likes: ${data.totalLikeCount}`);
+});
+⚡ See Data Structure
+social
+Triggered every time someone shares the stream or follows the host.
+
+connection.on(WebcastEvent.SOCIAL, data => {
+    console.log('social event data:', data);
+});
+⚡ See Data Structure
+emote
+Triggered every time a subscriber sends an emote (sticker).
+
+connection.on(WebcastEvent.EMOTE, (data: WebcastEmoteChatMessage) => {
+    console.log('emote received', data);
+});
+⚡ See Data Structure
+envelope
+Triggered every time someone sends a treasure chest.
+
+connection.on(WebcastEvent.ENVELOPE, data => {
+    console.log('envelope received', data);
+});
+⚡ See Data Structure
+questionNew
+Triggered every time someone asks a new question via the question feature.
+
+connection.on(WebcastEvent.QUESTION_NEW, data => {
+    console.log(`${data.uniqueId} asks ${data.questionText}`);
+});
+⚡ See Data Structure
+linkMicBattle
+Triggered every time a battle starts.
+
+connection.on(WebcastEvent.LINK_MIC_BATTLE, (data) => {
+    console.log(`New Battle: ${data.battleUsers[0].uniqueId} VS ${data.battleUsers[1].uniqueId}`);
+});
+⚡ See Data Structure
+linkMicArmies
+Triggered every time a battle participant receives points. Contains the current status of the battle and the army that suported the group.
+
+connection.on(WebcastEvent.LINK_MIC_ARMIES, (data) => {
+    console.log('linkMicArmies', data);
+});
+⚡ See Data Structure
+liveIntro
+Triggered when a live intro message appears.
+
+connection.on(WebcastEvent.LIVE_INTRO, (msg) => {
+    console.log(msg);
+});
+⚡ See Data Structure
+subscribe
+Triggers when a user creates a subscription.
+
+connection.on(WebcastEvent.SUBSCRIBE, (data) => {
+    console.log(data.uniqueId, 'subscribed!');
+});
+⚡ See Data Structure
+Custom Events
+These events are based on message events.
+
+follow
+Triggers when a user follows the streamer. Based on social event.
+
+connection.on(WebcastEvent.FOLLOW, (data) => {
+    console.log(data.uniqueId, 'followed!');
+});
+⚡ See Data Structure
+share
+Triggers when a user shares the stream. Based on social event.
+
+connection.on(WebcastEvent.SHARE, (data) => {
+    console.log(data.uniqueId, "shared the stream!");
+})

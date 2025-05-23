@@ -3,6 +3,7 @@ import ConnectionForm from '@/components/connection-form';
 import LiveStats from '@/components/live-stats';
 import LiveChat from '@/components/live-chat';
 import LiveGifts from '@/components/live-gifts';
+import LiveInteractions from '@/components/live-interactions';
 import ActivityFeed from '@/components/activity-feed';
 import { Badge } from '@/components/ui/badge';
 import { Video } from 'lucide-react';
@@ -15,7 +16,10 @@ export default function Home() {
     viewerCount: 0,
     messageCount: 0,
     giftCount: 0,
-    coinCount: 0
+    coinCount: 0,
+    likeCount: 0,
+    followCount: 0,
+    shareCount: 0
   });
 
   const { on } = useSocket();
@@ -98,13 +102,16 @@ export default function Home() {
         <LiveStats stats={stats} />
 
         {/* Chat and Gifts Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <LiveChat />
           <LiveGifts />
         </div>
 
-        {/* Activity Feed */}
-        <ActivityFeed />
+        {/* Interactions and Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <LiveInteractions />
+          <ActivityFeed />
+        </div>
       </main>
 
       {/* Footer */}
